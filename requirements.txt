@@ -1,0 +1,11 @@
+langchain==0.3.26 #older version stable version
+flask==3.1.1
+sentence-transformers==4.1.0 # well be using source embedding model which is available in huggingface, for this we need this library
+pypdf==5.6.1 # to open pdf
+langchain-pinecone==0.2.8 # connects framework to VectorDB
+langchain-openai==0.3.24 # connect to openAI
+langchain-community==0.3.26 # for dependency
+-e .   # means editable mode. pip will install when used commands like pip install - r requirements.txt
+
+# setup.py is the blueprint for your project as a package.
+# (-e .) is the command that tells pip to use that blueprint to install your package in an editable development mode.
