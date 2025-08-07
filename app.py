@@ -9,6 +9,8 @@ from dotenv import load_dotenv
 from src.prompt import *
 import os
 # things imported in notebook are all here
+from langchain.chains import ConversationChain
+from langchain.memory import ConversationBufferMemory
 
 app = Flask(__name__) # flask intialization
 
@@ -36,6 +38,7 @@ docsearch = PineconeVectorStore.from_existing_index(
 
 retriever = docsearch.as_retriever(search_type="similarity", search_kwargs={"k":3})
 
+memory = ConversationBufferMemory(return_messages=True)
 chatModel = ChatOpenAI(model="gpt-4o")
 prompt = ChatPromptTemplate.from_messages(
     [
@@ -44,9 +47,9 @@ prompt = ChatPromptTemplate.from_messages(
     ]
 )
 
-# Rag chain
 question_answer_chain = create_stuff_documents_chain(chatModel, prompt)
 rag_chain = create_retrieval_chain(retriever, question_answer_chain)
+conversation_chain = ConversationChain(llm=chatModel, memory=memory, verbose=True)
 
 
 
@@ -61,9 +64,9 @@ def chat():
     msg = request.form["msg"]
     input = msg 
     print(input) # user message received here
-    response = rag_chain.invoke({"input": msg})
-    print("Response : ", response["answer"])
-    return str(response["answer"])
+    response = conversation_chain.run(input=msg)
+    print("Response : ", response)
+    return str(response)
 
 
 # default route
