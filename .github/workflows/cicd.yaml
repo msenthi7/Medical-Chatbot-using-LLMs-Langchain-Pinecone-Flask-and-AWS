@@ -31,7 +31,6 @@ jobs:
           IMAGE_TAG: latest
         run: |
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
-          # The corrected line for docker push
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
 
@@ -55,16 +54,14 @@ jobs:
       
       - name: Run Docker Image to serve users
         run: |
-          # Pull the latest image
           docker pull "${{ steps.login-ecr.outputs.registry }}"/"${{ secrets.ECR_REPO }}":latest
-          # Stop and remove the old container to avoid port conflicts
           docker stop my-app || true
           docker rm my-app || true
-          # Run the new container with a name for easy management
           docker run -d --name my-app \
             -e AWS_ACCESS_KEY_ID="${{ secrets.AWS_ACCESS_KEY_ID }}" \
             -e AWS_SECRET_ACCESS_KEY="${{ secrets.AWS_SECRET_ACCESS_KEY }}" \
             -e OPENAI_API_KEY="${{ secrets.OPENAI_API_KEY }}" \
+            -e PINECONE_API_KEY="${{ secrets.PINECONE_API_KEY }}" \
             -p 8080:8080 \
             "${{ steps.login-ecr.outputs.registry }}"/"${{ secrets.ECR_REPO }}":latest
       
